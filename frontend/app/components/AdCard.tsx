@@ -32,7 +32,7 @@ export default function AdCard() {
 
           {/* 中部: 広告画像 (ダミー) */}
           <div className="mt-3 w-full border-2 border-black flex items-center justify-center overflow-hidden rounded-lg h-48 bg-gray-100 text-gray-400 text-xl font-bold">
-            ここに広告画像
+            aここに広告画像
           </div>
 
           {/* 下部: アクションボタン */}
