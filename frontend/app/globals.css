@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* :root の中身はそのまま */
+
+body {
+  /* 以前の color / background-color 指定を削除する */
+}
