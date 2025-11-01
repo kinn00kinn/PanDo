@@ -1,24 +1,27 @@
 import Timeline from "@/app/components/Timeline";
-import { RefreshCcw, SquarePen } from "lucide-react"; // ★ アイコンをインポート
+import { RefreshCcw, SquarePen } from "lucide-react"; // アイコンをインポート
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center bg-white text-black">
-      {/* ヘッダー: Xライクな上部固定ヘッダー */}
-      <header className="w-full max-w-xl md:max-w-2xl bg-white sticky top-0 z-10">
-        <div className="flex justify-between items-center px-4 py-3 border-b-2 border-black">
-          {" "}
-          {/* ★ 境界線を太く */}
-          <h1 className="text-2xl font-bold">NScroller</h1> {/* ★ ロゴ */}
-        </div>
-      </header>
+    // ★ 画面全体を中央寄せにするためのラッパー
+    // PCでは左右に余白ができ、スマホでは全幅になる
+    <div className="flex justify-center bg-white text-black">
+      {/* メインのコンテンツコンテナ (PCでの最大幅を設定) */}
+      <div className="w-full max-w-2xl">
+        {/* ヘッダー: スケッチのデザインを忠実に再現 */}
+        <header className="w-full bg-white/90 backdrop-blur-sm sticky top-0 z-10 ">
+          <div className="flex justify-between items-center px-4 py-3 border-b-2 border-black">
+            <h1 className="text-4xl font-extrabold tracking-tighter ">
+              NScroller
+            </h1>
+          </div>
+        </header>
 
-      {/* メインコンテンツのラッパー */}
-      <div className="w-full max-w-xl md:max-w-2xl border-x-2 border-black">
-        {" "}
-        {/* ★ 左右に太い境界線 */}
-        <Timeline />
+        {/* タイムライン本体 (左右の境界線を追加) */}
+        <main className="border-x-3 border-black">
+          <Timeline />
+        </main>
       </div>
-    </main>
+    </div>
   );
 }
