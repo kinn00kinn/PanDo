@@ -17,7 +17,7 @@ export default function Home() {
         </header>
 
         {/* タイムライン本体 (左右の境界線を追加) */}
-        <main className="border-x-3 border-black">
+        <main className="border-x-2 border-black">
           <Timeline />
         </main>
       </div>

@@ -36,8 +36,7 @@ export function useInfiniteFeed() {
         return null;
       }
       // APIエンドポイントのURLを生成
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      return `${apiUrl}/articles?page=${pageIndex + 1}&limit=${PAGE_SIZE}`;
+      return `/api/posts?page=${pageIndex + 1}&limit=${PAGE_SIZE}`;
     },
     fetcher
   );

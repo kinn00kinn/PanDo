@@ -1,4 +1,4 @@
-import type { Article } from "@/lib/mockData";
+import type { Article } from "@/app/lib/mockData";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import Image from "next/image";
