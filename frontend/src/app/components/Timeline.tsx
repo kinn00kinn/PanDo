@@ -1,6 +1,7 @@
 "use client";
 
-import { useInfiniteFeed, type FeedItem } from "@/app/lib/hook";
+// import { useInfiniteFeed, type FeedItem } from "@/app/lib/hook";
+import { useInfiniteFeed, type FeedItem } from "@/app/lib/mockhook";
 import ArticleCard from "./ArticleCard";
 import AdCard from "./AdCard";
 import { Loader2, AlertTriangle } from "lucide-react";

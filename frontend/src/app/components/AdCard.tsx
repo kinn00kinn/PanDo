@@ -32,18 +32,7 @@ export default function AdCard() {
 
           {/* 中部: 広告画像 (ダミー) */}
           <div className="mt-3 w-full border-2 border-black flex items-center justify-center overflow-hidden rounded-lg h-48 bg-gray-100 text-gray-400 text-xl font-bold">
-            aここに広告画像
-          </div>
-
-          {/* 下部: アクションボタン */}
-          <div className="mt-4 flex items-center space-x-4 text-black">
-            <div className="flex items-center space-x-1 cursor-pointer hover:text-gray-600">
-              <Star size={18} />
-            </div>
-            <div className="flex items-center space-x-1 cursor-pointer hover:text-gray-600">
-              <Share2 size={18} />
-              <span className="text-sm">詳細</span>
-            </div>
+            ここに広告画像
           </div>
         </div>
       </div>
