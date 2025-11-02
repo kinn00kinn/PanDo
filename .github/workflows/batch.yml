@@ -1,25 +1,38 @@
 name: Collect Articles Batch
-       on:
-         schedule:
-           - cron: "0 * * * *"
-         workflow_dispatch:
-     jobs:
-       collect:
-         runs-on: ubuntu-latest
-         defaults:
-           run:
-             working-directory: ./backend
-         steps:
-           - uses: actions/checkout@v4
-           - uses: actions/setup-python@v5
-           - run: pip install -r batch/requirements.txt
-           - env:
-               SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-               SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-             run: python batch/main.py
-           - run: pip install -r batch/requirements.txt
-           - env:
-               SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-               SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-             run: python batch/main.py
-           - run: pip install -r batch/requirements.txt
+on:
+  schedule:
+    # 毎時0分に実行（日本時間だとAM9:00, 10:00...）
+    - cron: "0 * * * *"
+  workflow_dispatch: {} # 手動実行も許可
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        # このジョブの 'run' ステップは、すべて ./backend ディレクトリで実行される
+        working-directory: ./backend
+    steps:
+      # 1. コードをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Python環境をセットアップ
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        # with:
+        #   python-version: '3.10' # 必要に応じてPythonのバージョンを指定
+
+      # 3. 必要なライブラリをインストール (1回だけでOK)
+      # working-directory が ./backend なので、
+      # ./backend/batch/requirements.txt を参照しにいく
+      - name: Install dependencies
+        run: pip install -r batch/requirements.txt
+
+      # 4. バッチスクリプトを実行 (1回だけでOK)
+      # env と run は同じ階層（インデント）にする
+      - name: Run python script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python batch/main.py
