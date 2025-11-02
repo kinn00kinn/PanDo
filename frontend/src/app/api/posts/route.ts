@@ -41,9 +41,12 @@ export async function GET(req: NextRequest) {
     // Supabaseからデータを取得
     const { data, error, count } = await supabase
       .from("articles")
-      .select("id, title, article_url, published_at, source_name, image_url", {
-        count: "exact",
-      })
+      .select(
+        "id, title, article_url, published_at, source_name, image_url, summary",
+        {
+          count: "exact",
+        }
+      )
       .order("published_at", { ascending: false })
       .range(offset, offset + limit - 1);
 
