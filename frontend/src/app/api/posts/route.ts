@@ -36,20 +36,26 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const offset = (page - 1) * limit; // Supabaseからデータを取得
+    const offset = (page - 1) * limit;
 
-    const { data, error } = await supabase
+    // Supabaseからデータを取得
+    const { data, error, count } = await supabase
       .from("articles")
-      .select("id, title, article_url, published_at, source_name, image_url")
+      .select("id, title, article_url, published_at, source_name, image_url", {
+        count: "exact",
+      })
       .order("published_at", { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) {
       console.error("Supabase error:", error);
       throw new Error(error.message);
-    } // レスポンスを返す
+    }
 
-    return NextResponse.json({ articles: data });
+    const hasMore = count ? offset + data.length < count : false;
+
+    // レスポンスを返す
+    return NextResponse.json({ articles: data, total: count, hasMore });
   } catch (error) {
     console.error("API route error:", error); // エラーレスポンスを返す
     return NextResponse.json(
