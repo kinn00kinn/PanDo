@@ -5,7 +5,7 @@ import "./globals.css";
 
 // --- ★ パンダSNSの基本情報を定義 ---
 const siteTitle = "PanDo (パンドゥ)";
-const siteDescription = "kawaii SNS";
+const siteDescription = "Latest News SNS";
 // ★ サイトのドメイン（デプロイ先のURL）
 const siteUrl = "https://n-scroller.vercel.app"; // ★ 例: ご自身のURLに変更してください
 // ★ OGP画像のパス (public/panda_back.png を想定)

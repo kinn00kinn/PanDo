@@ -26,7 +26,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
   // --- 動的スタイルロジック ---
   const hasSummary = article.summary && article.summary.length > 0;
-  const titleLineClamp = hasSummary ? "line-clamp-1" : "line-clamp-2";
+  const titleLineClamp = hasSummary ? "line-clamp-1" : "line-clamp-3";
 
   // --- 状態管理 ---
   const [copiedMD, setCopiedMD] = useState(false);
