@@ -6,7 +6,7 @@ import { ja } from "date-fns/locale";
 // import Image from "next/image"; // ★ 削除 (標準の <img> に変更)
 // import UserIcon from "./UserIcon"; // ★ 削除 (lucide-react の UserCircle に変更)
 import { Share2, X, UserCircle } from "lucide-react"; // ★ UserCircle をインポート
-import { useState } from "react";
+import { useState, useEffect } from "react"; // ★ useEffect をインポート
 
 type ArticleCardProps = {
   article: Article & { summary?: string | null };
@@ -29,12 +29,13 @@ export default function ArticleCard({ article }: ArticleCardProps) {
   // ★ ネイティブ共有APIがサポートされているかどうかの状態
   const [canNativeShare, setCanNativeShare] = useState(false);
 
-  // ★ ブラウザ側でのみ navigator をチェックするために useEffect を使用
-  useState(() => {
+  // ★ 修正: useState を useEffect に変更
+  // ブラウザ側でのみ navigator をチェックするために useEffect を使用
+  useEffect(() => {
     if (typeof navigator !== "undefined" && navigator.share) {
       setCanNativeShare(true);
     }
-  }, []);
+  }, []); // ★ 空の依存配列でマウント時に一度だけ実行
 
   // --- イベントハンドラ ---
 
@@ -78,6 +79,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
     };
 
     // navigator.share が存在し、データが共有可能かチェック
+    // ★ canNativeShare (state) をチェックする
     if (canNativeShare && navigator.canShare && navigator.canShare(shareData)) {
       try {
         await navigator.share(shareData);
@@ -188,7 +190,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
             {/* 下部 (ボタンと時間) */}
             <div className="mt-4 flex items-center justify-between text-black">
-              {/* 左側: 共有ボタン */}
+              {/* 左側: S 共有ボタン */}
               <div className="flex items-center space-x-4">
                 {/* 1. 共有ボタン (MD) */}
                 <button
