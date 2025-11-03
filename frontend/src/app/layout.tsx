@@ -20,12 +20,6 @@ export const metadata: Metadata = {
   },
   description: siteDescription,
 
-  // ファビコン (public/panda-icon.png を想定)
-  icons: {
-    icon: "./favicon.ico",
-    apple: "./favicon.ico", // Apple用アイコンも指定（推奨）
-  },
-
   // --- OGP (Facebook, Slack, etc.) ---
   openGraph: {
     title: siteTitle,
