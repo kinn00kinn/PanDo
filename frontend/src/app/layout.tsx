@@ -8,7 +8,7 @@ const siteTitle = "PanDo (パンドゥ)";
 const siteDescription =
   "パンダ好きのためのSNS";
 // ★ サイトのドメイン（デプロイ先のURL）
-const siteUrl = "https://n-scroller.vercel.app/"; // ★ 例: ご自身のURLに変更してください
+const siteUrl = "https://n-scroller.vercel.app"; // ★ 例: ご自身のURLに変更してください
 // ★ OGP画像のパス (public/panda_back.png を想定)
 const ogImageUrl = `${siteUrl}/Pando_banner_1000.png`;
 
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
 
   // ファビコン (public/panda-icon.png を想定)
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png", // Apple用アイコンも指定（推奨）
+    icon: "./favicon.ico",
+    apple: "./favicon.ico", // Apple用アイコンも指定（推奨）
   },
 
   // --- OGP (Facebook, Slack, etc.) ---
