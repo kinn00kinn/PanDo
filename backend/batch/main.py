@@ -16,7 +16,7 @@ from typing import Optional, Tuple, List
 load_dotenv()
 
 RSS_FEEDS = [
-    # "https://news.google.com/rss/search?q=%E3%83%91%E3%83%B3%E3%83%80&hl=ja&gl=JP&ceid=JP:ja",
+    "https://news.google.com/rss/search?q=%E3%83%91%E3%83%B3%E3%83%80&hl=ja&gl=JP&ceid=JP:ja",
     "https://www.tokyo-zoo.net/zoo/ueno/news/atom.xml",
     "https://www.aws-s.com/topics/atom.xml",
     "https://www.worldwildlife.org/feeds/blog/posts",
