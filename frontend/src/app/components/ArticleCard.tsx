@@ -26,6 +26,15 @@ export default function ArticleCard({ article }: ArticleCardProps) {
   const [copiedMD, setCopiedMD] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
+  // ★ ネイティブ共有APIがサポートされているかどうかの状態
+  const [canNativeShare, setCanNativeShare] = useState(false);
+
+  // ★ ブラウザ側でのみ navigator をチェックするために useEffect を使用
+  useState(() => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      setCanNativeShare(true);
+    }
+  }, []);
 
   // --- イベントハンドラ ---
 
@@ -57,11 +66,30 @@ export default function ArticleCard({ article }: ArticleCardProps) {
     }
   };
 
-  // 2. 共有モーダルを開く処理
-  const handleOpenModal = (e: React.MouseEvent) => {
+  // ★ 2. ネイティブ共有 または モーダルを開く処理
+  const handleNativeShareOrModal = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsModalOpen(true);
+
+    const shareData = {
+      title: article.title,
+      text: article.summary || article.title,
+      url: article.article_url,
+    };
+
+    // navigator.share が存在し、データが共有可能かチェック
+    if (canNativeShare && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+        // 共有が成功した（またはユーザーが閉じた）場合の処理
+      } catch (err) {
+        // ユーザーが共有をキャンセルした場合などはエラーになる
+        console.error("Web Share API が失敗しました:", err);
+      }
+    } else {
+      // Web Share API が使えない場合は、フォールバックとしてモーダルを開く
+      setIsModalOpen(true);
+    }
   };
 
   // 3. 共有モーダルを閉じる処理
@@ -122,9 +150,9 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         className="block w-full p-4 border-b-2 border-black bg-white transition-colors duration-150 hover:bg-gray-50"
       >
         <div className="flex space-x-3">
-          {/* 左側: アイコン (★ UserCircle に変更) */}
-          <div className="flex-shrink-0">
-            <UserCircle size={48} className="text-gray-400" />
+          {/* ★ 左側: アイコン (黒枠を追加) */}
+          <div className="flex-shrink-0 w-12 h-12 border-2 border-black rounded-full flex items-center justify-center bg-gray-100 overflow-hidden">
+            <UserCircle size={36} className="text-gray-500" />
           </div>
 
           {/* 右側: コンテンツ */}
@@ -178,9 +206,9 @@ export default function ArticleCard({ article }: ArticleCardProps) {
                   </span>
                 </button>
 
-                {/* 2. 共有ボタン (モーダル) */}
+                {/* ★ 2. 共有ボタン (ネイティブ or モーダル) */}
                 <button
-                  onClick={handleOpenModal}
+                  onClick={handleNativeShareOrModal}
                   className="p-2 rounded-full transition-colors duration-150 text-black hover:bg-gray-200"
                   aria-label="共有"
                 >
@@ -197,7 +225,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         </div>
       </a>
 
-      {/* --- 2. 共有モーダル --- */}
+      {/* --- 2. 共有モーダル (フォールバック用) --- */}
       {isModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
