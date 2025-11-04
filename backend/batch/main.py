@@ -23,6 +23,14 @@ def main():
     if not NEWSAPI_KEY:
         print("NEWSAPI_KEY が .env に設定されていません。")
         return
+    # 2. Google APIキーを環境変数から取得
+    GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+    CUSTOM_SEARCH_CX = os.environ.get("CUSTOM_SEARCH_CX")
+    
+    # 変更点 2: 2つのキーをチェック
+    if not GOOGLE_API_KEY or not CUSTOM_SEARCH_CX:
+        print("GOOGLE_API_KEY または CUSTOM_SEARCH_CX が .env に設定されていません。")
+        return
 
     # 3. (元コードの機能) コマンドライン引数がある場合は単発検証モード
     args = sys.argv[1:]
@@ -38,7 +46,7 @@ def main():
         return
 
     # 4. メインのバッチ処理
-    print("データ収集バッチ開始 (NewsAPI モード)")
+    print("データ収集バッチ開始")
     
     # 4-1. データの収集 (DBのことは知らない)
     collected_articles = fetch_cute_animal_news(NEWSAPI_KEY)
