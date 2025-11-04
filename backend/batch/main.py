@@ -2,7 +2,7 @@
 """
 Pandas ニュース収集バッチ実行スクリプト
 
-1. 記事収集モジュール (article_collector) を呼び出し、記事データを取得
+1. 記事収集モジュール (search_panda_images) を呼び出し、記事データを取得
 2. DB管理モジュール (database_manager) を呼び出し、取得したデータを保存
 """
 
@@ -11,18 +11,13 @@ import sys
 
 # 作成したモジュールをインポート
 from database_manager import init_supabase_client, save_articles_to_db
-# from article_collector import fetch_cute_animal_news, get_main_image
+# 変更点 1: 正しいインポート構文に変更
 from search_panda_images import fetch_cute_animal_news, get_main_image
 
 def main():
     # 1. DBクライアントを初期化 (dotenvもここで読み込まれる)
     supabase_client = init_supabase_client()
 
-    # 2. NewsAPIキーを環境変数から取得
-    NEWSAPI_KEY = os.environ.get("NEWSAPI_KEY")
-    if not NEWSAPI_KEY:
-        print("NEWSAPI_KEY が .env に設定されていません。")
-        return
     # 2. Google APIキーを環境変数から取得
     GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
     CUSTOM_SEARCH_CX = os.environ.get("CUSTOM_SEARCH_CX")
@@ -32,7 +27,7 @@ def main():
         print("GOOGLE_API_KEY または CUSTOM_SEARCH_CX が .env に設定されていません。")
         return
 
-    # 3. (元コードの機能) コマンドライン引数がある場合は単発検証モード
+    # 3. コマンドライン引数がある場合は単発検証モード
     args = sys.argv[1:]
     if args:
         for u in args:
@@ -46,10 +41,12 @@ def main():
         return
 
     # 4. メインのバッチ処理
-    print("データ収集バッチ開始")
+    # 変更点 3: ログメッセージを修正
+    print("データ収集バッチ開始 (Google Search モード)")
     
     # 4-1. データの収集 (DBのことは知らない)
-    collected_articles = fetch_cute_animal_news(NEWSAPI_KEY)
+    # 変更点 4: 2つのキーを渡す
+    collected_articles = fetch_cute_animal_news(GOOGLE_API_KEY, CUSTOM_SEARCH_CX)
     
     print(f"--- APIから {len(collected_articles)} 件の記事候補を取得しました ---")
     print("--- データベースへの保存処理を開始します ---")
