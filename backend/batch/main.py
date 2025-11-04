@@ -8,7 +8,7 @@ Pandas ニュース収集バッチ実行スクリプト
 
 import os
 import sys
-
+from dotenv import load_dotenv
 # 作成したモジュールをインポート
 from database_manager import init_supabase_client, save_articles_to_db
 # 変更点 1: 正しいインポート構文に変更
@@ -17,6 +17,8 @@ from search_panda_images import fetch_cute_animal_news, get_main_image
 def main():
     # 1. DBクライアントを初期化 (dotenvもここで読み込まれる)
     supabase_client = init_supabase_client()
+
+    load_dotenv()
 
     # 2. Google APIキーを環境変数から取得
     GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
