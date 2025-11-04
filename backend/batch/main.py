@@ -25,7 +25,9 @@ def main():
     CUSTOM_SEARCH_CX = os.environ.get("CUSTOM_SEARCH_CX")
     
     # 変更点 2: 2つのキーをチェック
-    if not GOOGLE_API_KEY or not CUSTOM_SEARCH_CX:
+    if not (GOOGLE_API_KEY and  CUSTOM_SEARCH_CX):
+        print(GOOGLE_API_KEY)
+        print(CUSTOM_SEARCH_CX)
         print("GOOGLE_API_KEY または CUSTOM_SEARCH_CX が .env に設定されていません。")
         return
 
