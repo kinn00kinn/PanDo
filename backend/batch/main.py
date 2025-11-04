@@ -10,7 +10,7 @@ import os
 import sys
 from dotenv import load_dotenv
 # 作成したモジュールをインポート
-from database_manager import init_supabase_client, save_articles_to_db
+from database_manager import init_supabase_client, save_articles_to_db,delete_old_articles
 # 変更点 1: 正しいインポート構文に変更
 from search_panda_images import fetch_cute_animal_news, get_main_image
 
@@ -55,6 +55,10 @@ def main():
 
     # 4-2. データの保存 (APIのことは知らない)
     total_saved = save_articles_to_db(supabase_client, collected_articles)
+
+    # 4-3. 古いデータの削除
+    print("--- 古い記事のクリーンアップ処理を開始します ---")
+    total_deleted = delete_old_articles(supabase_client)
 
     print(f"データ収集バッチ完了 (新規保存: {total_saved} 件)")
 

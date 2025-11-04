@@ -155,7 +155,7 @@ def fetch_cute_animal_news(api_key: str, cx_id: str) -> List[dict]:
         "q": query,
         "searchType": "image",
         "dateRestrict": "d1",
-        "num": 10,
+        "num": 100,
     }
     
     print(f"--- Google Custom Search API 実行中 (q={query}, dateRestrict=d1) ---")
