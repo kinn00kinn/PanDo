@@ -1,4 +1,5 @@
 
+![](frontend\public\Pando_banner_1000.gif)
 
 # PanDo - フロントエンド (`frontend/README.md`)
 
