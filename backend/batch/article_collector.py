@@ -9,7 +9,7 @@ import time
 from urllib.parse import urlparse
 from typing import Optional, List
 # 共通ヘルパーをインポート
-from .utils import parse_published, get_main_image, validate_image_url
+from utils import parse_published, get_main_image, validate_image_url
 
 # NewsAPI クライアントのインポート試行
 try:

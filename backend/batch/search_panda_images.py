@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Optional, List
 
 # 共通ヘルパーをインポート
-from .utils import get_main_image, validate_image_url, SESSION
+from utils import get_main_image, validate_image_url, SESSION
 
 def fetch_from_google_search(api_key: str, cx_id: str) -> List[dict]:
     """

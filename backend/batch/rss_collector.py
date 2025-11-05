@@ -9,7 +9,7 @@ import feedparser
 from typing import List
 from urllib.parse import urlparse
 # 共通ヘルパーをインポート
-from .utils import get_main_image, parse_published
+from utils import get_main_image, parse_published
 
 
 # --- ★ 収集対象のRSSフィードリスト ---
