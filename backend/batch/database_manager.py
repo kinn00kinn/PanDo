@@ -84,7 +84,7 @@ def delete_old_articles(supabase_client: Optional[Client]) -> int:
     
     try:
         # 24時間前のカットオフ時刻をUTCで計算 (TIMESTAMPTZはUTC基準のため)
-        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=24)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=100)
         cutoff_iso = cutoff_time.isoformat()
         
         print(f" [情報] 以下の時刻より古い記事 (created_at) を削除します: {cutoff_iso}")
