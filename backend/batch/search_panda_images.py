@@ -1,159 +1,30 @@
 #!/usr/bin/env python3
 """
 Google Custom Search API を使用したパンダ画像収集モジュール
-(article_collector.py と互換性のあるインターフェースを提供)
-
-- fetch_cute_animal_news: メインの収集関数
-- get_main_image: 記事URLから画像を取得するヘルパー関数
+(ヘルパー関数を utils.py に移動)
 """
 
 import os
 import sys
-import json
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, List
-from urllib.parse import urlparse
 
-# --- 定数 (グローバル) ---
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
-HTTP_TIMEOUT = 10
-MIN_IMAGE_BYTES = 512
-SESSION = requests.Session()
-SESSION.headers.update({"User-Agent": USER_AGENT, "Accept-Language": "ja,en-US;q=0.9,en;q=0.8"})
+# 共通ヘルパーをインポート
+from .utils import get_main_image, validate_image_url, SESSION
 
-# --- ヘルパー (内部関数) ---
-
-def fetch_html(url: str, timeout: int = HTTP_TIMEOUT) -> Optional[tuple]:
-    """[内部] HTMLを取得して BeautifulSoup オブジェクトを返す"""
-    try:
-        resp = SESSION.get(url, timeout=timeout, allow_redirects=True)
-        resp.raise_for_status()
-        return resp.url, BeautifulSoup(resp.text, "html.parser")
-    except requests.RequestException as e:
-        print(f" [fetch_html エラー] {url} : {e}")
-        return None
-
-
-def validate_image_url(img_url: str, timeout: int = 6) -> bool:
-    """[内部] 提供された画像URLが有効か検証する"""
-    try:
-        if not img_url or not img_url.startswith("http"):
-            return False
-        
-        # HEADリクエストで Content-Type と Content-Length を確認
-        try:
-            head = SESSION.head(img_url, timeout=timeout, allow_redirects=True)
-            if head.status_code >= 400: return False
-            ct = head.headers.get("Content-Type", "")
-            if not ct.startswith("image/"): return False
-            cl = head.headers.get("Content-Length")
-            if cl and int(cl) < MIN_IMAGE_BYTES: return False
-            return True
-        
-        # HEADが失敗した場合 (サーバーがHEADをサポートしていない場合)
-        except Exception:
-            g = SESSION.get(img_url, timeout=timeout, stream=True)
-            if g.status_code >= 400: return False
-            ct = g.headers.get("Content-Type", "") or ""
-            if not ct.startswith("image/"): return False
-            first_chunk = next(g.iter_content(1024), b"")
-            g.close()
-            return len(first_chunk) >= 16
-            
-    except Exception as e:
-        print(f"   [validate_image 例外] {img_url} : {e}")
-        return False
-
-# --- 提供関数 1 ---
-
-def get_main_image(article_url: str) -> Optional[str]:
-    """
-    記事URLをスクレイピングしてOGPや本文からメイン画像を取得する
-    (main.py の単発検証モードから呼び出される)
-    """
-    fetched = fetch_html(article_url)
-    if not fetched:
-        return None
-    final_url, soup = fetched
-
-    # 1) OGP / Twitter
-    meta_keys = [
-        ("meta", {"property": "og:image"}, "content"),
-        ("meta", {"property": "og:image:secure_url"}, "content"),
-        ("meta", {"name": "twitter:image"}, "content"),
-    ]
-    for tag, attrs, attrname in meta_keys:
-        t = soup.find(tag, attrs=attrs)
-        if t and t.get(attrname):
-            cand = requests.compat.urljoin(final_url, t.get(attrname))
-            if validate_image_url(cand):
-                return cand
-
-    # 2) JSON-LD
-    for script in soup.find_all("script", type="application/ld+json"):
-        try:
-            txt = script.string
-            if not txt: continue
-            data = json.loads(txt)
-            items = data if isinstance(data, list) else [data]
-            for it in items:
-                if isinstance(it, dict):
-                    img = it.get("image") or it.get("thumbnailUrl")
-                    if isinstance(img, str):
-                        cand = requests.compat.urljoin(final_url, img)
-                        if validate_image_url(cand): return cand
-                    elif isinstance(img, dict):
-                        urlf = img.get("url")
-                        if urlf:
-                            cand = requests.compat.urljoin(final_url, urlf)
-                            if validate_image_url(cand): return cand
-                    elif isinstance(img, list):
-                        for it2 in img:
-                            if isinstance(it2, str):
-                                cand = requests.compat.urljoin(final_url, it2)
-                                if validate_image_url(cand): return cand
-        except Exception:
-            continue
-
-    # 3) 本文中画像
-    selectors = ["article", "main", "[role='main']", ".post-content", ".article-body", "#content"]
-    main_content = None
-    for s in selectors:
-        main_content = soup.select_one(s)
-        if main_content: break
-    if not main_content:
-        main_content = soup.body
-
-    if main_content:
-        for img in main_content.find_all("img", src=True):
-            src = img.get("src")
-            if not src or src.startswith("data:"): continue
-            cand = requests.compat.urljoin(final_url, src)
-            if validate_image_url(cand):
-                return cand
-    return None
-
-# --- 提供関数 2 ---
-
-def fetch_cute_animal_news(api_key: str, cx_id: str) -> List[dict]:
+def fetch_from_google_search(api_key: str, cx_id: str) -> List[dict]:
     """
     Google Custom Search API (Image) を使って
     過去24時間 ('d1') のパンダの画像と元記事を取得する
-    (main.py のメインバッチ処理から呼び出される)
-    
-    ※ 元の search_google_panda_images からリネーム
+    (関数名を変更)
     """
     
     API_URL = "https://www.googleapis.com/customsearch/v1"
     query = 'panda OR "giant panda" OR パンダ OR ジャイアントパンダ'
     
-    # ### 修正: 10ページ x 10件 = 100件 ###
     TOTAL_PAGES_TO_TRY = 10
-    ITEMS_PER_PAGE = 10 # APIの制約 (最大10)
+    ITEMS_PER_PAGE = 10
     
-    # ベースとなるパラメータ (start 以外)
     params = {
         "key": api_key,
         "cx": cx_id,
@@ -165,48 +36,32 @@ def fetch_cute_animal_news(api_key: str, cx_id: str) -> List[dict]:
     
     print(f"--- Google Custom Search API 実行中 (最大100件取得, q={query}) ---")
 
-    # ### 修正: 全アイテムを蓄積するリスト ###
     all_data_items = [] 
     
     for i in range(TOTAL_PAGES_TO_TRY):
-        
-        # ### 修正: 'start' パラメータを動的に設定 ###
-        # i=0 -> start=1
-        # i=1 -> start=11
-        # i=9 -> start=91
         params['start'] = (i * ITEMS_PER_PAGE) + 1
         
-        # print(f" [API] ページ {i+1}/{TOTAL_PAGES_TO_TRY} (start={params['start']}) を取得中...")
-
         try:
-            response = SESSION.get(API_URL, params=params, timeout=HTTP_TIMEOUT)
+            response = SESSION.get(API_URL, params=params, timeout=10)
             response.raise_for_status()
             data = response.json()
             
-            # ### 修正: 取得したアイテムを 'all_data_items' に追加 ###
             items_on_this_page = data.get("items")
             
             if not items_on_this_page:
-                # 検索結果が100件未満で、これ以上アイテムがない場合
                 print(" [情報] これ以上取得するアイテムがありません。ループを終了します。")
-                break # ループを抜ける
+                break
             
-            all_data_items.extend(items_on_this_page) # 蓄積
+            all_data_items.extend(items_on_this_page)
 
         except requests.RequestException as e:
             print(f" [APIリクエストエラー]: {e}")
             if response is not None and hasattr(response, 'text'):
                 print(f" [エラー詳細]: {response.text}")
-            # エラー時はループを中断
-            return [] # 関数から抜け
+            return [] 
 
-    # --- ループ終了後 ---
-    
     results = []
-    
-    # ### 修正: ループで蓄積した 'all_data_items' を使う ###
-    # items = data.get("items") # <-- バグの原因: 最後のページの結果しか使われない
-    items = all_data_items      # <-- 修正: 全ページの結果(最大100件)を使う
+    items = all_data_items
     
     if not items:
         print(" [情報] 該当する画像は見つかりませんでした。")
@@ -214,7 +69,7 @@ def fetch_cute_animal_news(api_key: str, cx_id: str) -> List[dict]:
 
     print(f"\n--- APIから取得した合計 {len(items)} 件の記事候補を検証します ---")
 
-    for item in items: # <-- これで all_data_items をループ処理できる
+    for item in items:
         title = item.get("title", "(タイトルなし)")
         google_image_url = item.get("link")
         source_article_url = item.get("image", {}).get("contextLink")
@@ -229,11 +84,13 @@ def fetch_cute_animal_news(api_key: str, cx_id: str) -> List[dict]:
 
         final_image_url = None
 
+        # ★ 共通ヘルパーを使用
         if validate_image_url(google_image_url):
             print(f"   [OK] Google提供の画像を採用: {google_image_url}")
             final_image_url = google_image_url
         else:
             print(f"   [NG] Google提供の画像が無効。元記事をスクレイピングします...")
+            # ★ 共通ヘルパーを使用
             scraped_image_url = get_main_image(source_article_url)
             
             if scraped_image_url:
@@ -248,7 +105,8 @@ def fetch_cute_animal_news(api_key: str, cx_id: str) -> List[dict]:
                 "article_url": source_article_url,
                 "image_url": final_image_url,
                 "source_name": source_name,
-                "published_at": datetime.now().isoformat()
+                # Google Search APIは公開日を返さないため、現在時刻をセット
+                "published_at": datetime.now().isoformat() 
             })
 
     return results
@@ -256,13 +114,8 @@ def fetch_cute_animal_news(api_key: str, cx_id: str) -> List[dict]:
 
 # --- 単体実行 (テスト) ---
 if __name__ == "__main__":
-    """
-    このスクリプトを直接実行した場合のテスト処理
-    (例: python search_panda_images.py)
-    """
-    print("--- モジュール単体テスト実行 ---")
+    print("--- モジュール単体テスト実行 (Google Search) ---")
     
-    # .env を読み込む
     from dotenv import load_dotenv
     load_dotenv()
     
@@ -270,24 +123,11 @@ if __name__ == "__main__":
     CUSTOM_SEARCH_CX = os.environ.get("CUSTOM_SEARCH_CX")
 
     if not GOOGLE_API_KEY or not CUSTOM_SEARCH_CX:
-        print("="*50)
-        print("【エラー】 環境変数が設定されていません。")
-        print("`.env` ファイルに以下の2行を追加してください:")
-        print(" GOOGLE_API_KEY=...")
-        print(" CUSTOM_SEARCH_CX=...")
-        print("="*50)
+        print("【エラー】 GOOGLE_API_KEY または CUSTOM_SEARCH_CX が .env に設定されていません。")
         sys.exit(1)
 
-    # メイン関数をテスト実行
-    panda_images = fetch_cute_animal_news(GOOGLE_API_KEY, CUSTOM_SEARCH_CX)
+    panda_images = fetch_from_google_search(GOOGLE_API_KEY, CUSTOM_SEARCH_CX)
     
     print(f"\n{'='*20} 最終結果: {len(panda_images)} 件 {'='*20}")
-    
-    if not panda_images:
-        print("有効なパンダの画像は見つかりませんでした。")
-    
-    for i, item in enumerate(panda_images):
-        print(f"\n【{i+1}】 {item['title']}")
-        print(f"   記事(参考文献): {item['article_url']}")
-        print(f"   画像URL: {item['image_url']}")
-        print(f"   取得元: {item['source_name']}")
+    for item in panda_images:
+        print(f"  {item['title']} -> {item['image_url']}")
