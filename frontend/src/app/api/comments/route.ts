@@ -32,23 +32,13 @@ export async function GET(req: NextRequest) {
     }
 
     // コメントをユーザー情報と共に取得 (投稿日順)
-    const { data, error } = await supabase
-      .from("comments")
-      .select(
-        `
-        id,
-        created_at,
-        text,
-        user_id,
-        user:users (
-          id,
-          name,
-          image
-        )
-      `
-      )
-      .eq("article_id", article_id)
-      .order("created_at", { ascending: true }); // 投稿日順
+    const { data, error } = await supabase.rpc(
+      "get_comments_for_article",
+      {
+        p_article_id: article_id,
+      }
+    )
+     
 
     if (error) throw error;
 

@@ -7,10 +7,7 @@ import { getServerSession } from "next-auth/next";
 
 import NextAuth from "next-auth";
 // ★ 変更：インポート先を新しい auth.ts に変更
-import { authOptions } from "@/app/lib/auth"; 
-
-
-
+import { authOptions } from "@/app/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -73,18 +70,14 @@ export async function GET(req: NextRequest) {
       // ★ 'my-likes' 専用クエリ
       // (get_feed_articles RPC とほぼ同じロジックだが、
       //  INNER JOIN user_likes で絞り込む点が異なる)
-      const { data, error, count } = await supabase
-            .from('articles')
-            .select(`
-                id, title, article_url, published_at, source_name, image_url, like_num,
-                is_liked:user_likes!inner(user_id),
-                comments ( id, created_at, text, user_id, user:users(id, name, image) )
-            `, { count: 'exact' }) // ★ 'user:users' の中身を 'image' に簡略化
-            .eq('user_likes.user_id', requesting_user_id)
-        .order("created_at", { foreignTable: "user_likes", ascending: false }) // いいねした順
-        .limit(3, { foreignTable: "comments" }) // コメントは3件まで
-        .order("created_at", { foreignTable: "comments", ascending: false }) // コメントは新しい順
-        .range(offset, offset + safeLimit - 1);
+      const { data, error, count } = await supabase.rpc(
+        "get_my_liked_articles",
+        {
+          p_user_id: requesting_user_id,
+          p_page_num: page,
+          p_page_limit: safeLimit,
+        }
+      );
 
       if (error) throw error;
 
