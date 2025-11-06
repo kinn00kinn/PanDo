@@ -62,32 +62,30 @@ export async function GET(req: NextRequest) {
     // --- 3. RPCの呼び出し ---
     // 'get_feed_articles' (page_num, page_limit, sort_mode, requesting_user_id)
 
-    // liked_by_user=true の場合、RPCではなく直接 user_likes をJOINするクエリを組む
-    // (RPCを複雑化させないため)
+    // liked_by_user=true の場合、専用のRPC 'get_my_liked_articles' を呼び出す
     if (liked_by_user && requesting_user_id) {
-      const offset = (page - 1) * safeLimit;
+      // ★★★ ここから修正 ★★★
 
-      // ★ 'my-likes' 専用クエリ
-      // (get_feed_articles RPC とほぼ同じロジックだが、
-      //  INNER JOIN user_likes で絞り込む点が異なる)
-      const { data, error, count } = await supabase.rpc(
-        "get_my_liked_articles",
-        {
-          p_user_id: requesting_user_id,
-          p_page_num: page,
-          p_page_limit: safeLimit,
-        }
-      );
+      // 1. .rpc() は 'count' を返さないため、{ data, error } のみ受け取る
+      const { data, error } = await supabase.rpc("get_my_liked_articles", {
+        p_user_id: requesting_user_id,
+        p_page_num: page,
+        p_page_limit: safeLimit,
+      });
 
       if (error) throw error;
 
-      // is_liked が配列[]で返ってくるのでbooleanに変換
-      const articles = data.map((a) => ({
-        ...a,
-        is_liked: Array.isArray(a.is_liked) && a.is_liked.length > 0,
-      }));
-      const hasMore = count ? offset + articles.length < count : false;
-      return NextResponse.json({ articles, total: count, hasMore });
+      // 2. data は既に正しい Article[] 形式 (または null)
+      //    'a: any' エラーの原因だった .map() 処理を削除
+      const articles = data || [];
+
+      // 3. 'count' がないので、取得件数とリミット数を比較して 'hasMore' を判断
+      const hasMore = articles.length === safeLimit;
+
+      // 4. 'total: null' (総件数なし) でレスポンスを返す
+      return NextResponse.json({ articles, total: null, hasMore });
+
+      // ★★★ 修正ここまで ★★★
     } else {
       // ★ 通常のタイムライン (RPC呼び出し)
       const { data, error } = await supabase.rpc("get_feed_articles", {
@@ -103,10 +101,11 @@ export async function GET(req: NextRequest) {
       }
 
       // RPCはhasMoreを返さないので、件数がlimit未満かで判定
-      const hasMore = data.length === safeLimit;
+      // (data が null の場合も考慮)
+      const hasMore = data ? data.length === safeLimit : false;
 
       return NextResponse.json({
-        articles: data,
+        articles: data || [], // data が null の場合は空配列を返す
         total: null, // RPCでは総数を取得していない
         hasMore: hasMore,
       });
