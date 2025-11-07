@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { User, X, Heart, UserCog, Bookmark } from "lucide-react"; // ★ Heart アイコンを追加
+import { User, X, Heart, UserCog, Bookmark, Info } from "lucide-react"; // ★ Heart アイコンを追加
 import FeedSorter from "@/app/components/FeedSorter"; // ★ FeedSorter をインポート
 
 export default function Home() {
@@ -144,9 +144,10 @@ export default function Home() {
                 <Link
                   href="/links"
                   onClick={() => setIsMenuOpen(false)}
-                  className="block w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors"
                 >
-                  インフォメーション
+                  <Info size={16} />
+                  <span>インフォメーション</span>
                 </Link>
 
                 {/* (サインイン/サインアウト ... 変更なし) */}
