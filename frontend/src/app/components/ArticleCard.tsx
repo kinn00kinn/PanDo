@@ -13,7 +13,6 @@ import {
   Facebook,
   MessageSquare,
   Send,
-  Heart,
   Bookmark,
   MessageCircle, // ★ 返信アイコン
 } from "lucide-react";
@@ -52,6 +51,7 @@ export default function ArticleCard({
   const [likeCount, setLikeCount] = useState(article.like_num || 0);
   const [isBookmarked, setIsBookmarked] = useState(article.is_bookmarked);
   const { data: session, status } = useSession();
+  const [isAnimatingLike, setIsAnimatingLike] = useState(false);
 
   // ★ APIからのpropsが変更されたら、ローカルのいいね状態も同期する
   useEffect(() => {
@@ -106,11 +106,12 @@ export default function ArticleCard({
     )}&text=${encodeURIComponent(title)}`;
 
   // ★ 7. いいねクリック処理 (修正)
+  // ★ 7. いいねクリック処理 (修正)
   const handleLikeClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (status === "loading") return;
+    if (status === "loading" || isAnimatingLike) return; // ★ アニメーション中はクリックを無効化
 
     if (!session) {
       alert("いいね機能を利用するにはログインが必要です。");
@@ -120,9 +121,21 @@ export default function ArticleCard({
 
     // 楽観的UI
     const newIsLiked = !isLiked;
+    if (newIsLiked) {
+      setIsAnimatingLike(true); // ★ アニメーション開始
+    }
     setIsLiked(newIsLiked);
     setLikeCount((prevCount) => prevCount + (newIsLiked ? 1 : -1));
     const action = newIsLiked ? "like" : "unlike";
+
+    // ★ GIFアニメーションの再生時間（仮に1秒=1000ms）後にアニメーション状態を解除
+    // (実際のGIFの長さに合わせて調整してください)
+    if (newIsLiked) {
+      const ANIMATION_DURATION = 1000;
+      setTimeout(() => {
+        setIsAnimatingLike(false);
+      }, ANIMATION_DURATION);
+    }
 
     try {
       const response = await fetch("/api/like", {
@@ -139,20 +152,24 @@ export default function ArticleCard({
       }
 
       const result = await response.json();
-
-      // ★ サーバーからの最新のいいね数でローカルを同期 (念のため)
       setLikeCount(result.new_like_num);
-
-      // ★ SWRキャッシュを再検証 (タイムライン全体)
-      // これにより、他のSWRフック(例: my-likesページ)も自動で更新される
       onLikeSuccess();
     } catch (error) {
       console.error("いいねの更新に失敗しました:", error);
       // エラー時はUIを元に戻す
+      setIsAnimatingLike(false); // ★ アニメーションを即時停止
       setIsLiked(!newIsLiked);
       setLikeCount((prevCount) => prevCount - (newIsLiked ? 1 : -1));
     }
   };
+
+  // ★ いいねアイコンのソースを決定するロジック
+  let currentLikeIconSrc: string;
+  if (isAnimatingLike && isLiked) {
+    currentLikeIconSrc = "/like_anime_up.gif";
+  } else {
+    currentLikeIconSrc = isLiked ? "/like_on.png" : "/like_off.png";
+  }
 
   // ★ 8. 返信アイコンクリック (何もしないが、親のリンクを無効化)
   const handleCommentClick = (e: React.MouseEvent) => {
@@ -314,9 +331,9 @@ export default function ArticleCard({
                   <span className="text-sm hidden sm:inline">
                     {" "}
                     {/* ★ SPでは非表示 */}
-                    {/* {copiedMD ? "コピー!" : "共有 (MD)"} */}
-                  {/* </span> */}
-                {/* </button> */} 
+                {/* {copiedMD ? "コピー!" : "共有 (MD)"} */}
+                {/* </span> */}
+                {/* </button> */}
 
                 {/* 3. 共有 (モーダル) */}
                 <button
@@ -327,17 +344,28 @@ export default function ArticleCard({
                   <Send size={18} />
                 </button>
 
-                {/* 4. いいねボタン (★ 状態管理を修正) */}
+                {/* ★ 4. いいねボタン (★ レンダリングを修正) */}
                 <button
                   onClick={handleLikeClick}
                   className={`flex items-center space-x-1 transition-colors duration-150 ${
                     isLiked
-                      ? "text-red-500 hover:text-red-700"
+                      ? "text-red-500" // text-red-500 は数字の色にのみ影響
                       : "text-black hover:text-gray-600"
                   }`}
                   aria-label="いいね"
                 >
-                  <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
+                  {/* ★ Heart アイコンを Image コンポーネントに差し替え */}
+                  <div className="w-[18px] h-[18px] flex items-center justify-center">
+                    <Image
+                      src={currentLikeIconSrc}
+                      alt="いいね"
+                      width={18}
+                      height={18}
+                      // GIFアニメーションをリロードするために key を設定
+                      key={currentLikeIconSrc}
+                      unoptimized // GIFアニメーションのために最適化を無効化
+                    />
+                  </div>
                   <span className="text-sm">{likeCount}</span>
                 </button>
                 {/* ★★★ 5. ブックマークボタン (新規追加) ★★★ */}
