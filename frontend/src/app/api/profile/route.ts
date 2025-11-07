@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
 
     // 3. データベースの 'users' テーブルを更新
     const { data, error } = await supabase
+      .schema("next_auth") // <-- スキーマを指定
       .from("users")
       .update(updateData)
       .eq("id", user_id)

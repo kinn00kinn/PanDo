@@ -8,6 +8,16 @@ import { ArrowLeft, Loader2, User, Camera, Check } from "lucide-react";
 import Image from "next/image";
 import { supabase } from "@/app/lib/supabase"; // クライアントSupaClientをインポート
 
+// ★ ファイルをBase64に変換するヘルパー関数
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 export default function ProfilePage() {
   const router = useRouter();
   const { data: session, status, update: updateSession } = useSession(); // 'update' を取得
@@ -40,58 +50,79 @@ export default function ProfilePage() {
     e.preventDefault();
     if (status !== "authenticated" || isLoading) return;
 
+    const nameChanged = name !== session.user.name;
+    const avatarChanged = !!avatarImage;
+
+    // どちらも変更がなければ何もしない
+    if (!nameChanged && !avatarChanged) return;
+
     setIsLoading(true);
     setIsSuccess(false);
-    let newImageUrl: string | undefined = undefined;
+    let newImageUrl: string | undefined = undefined; // 新しい画像のURLを格納する変数
 
     try {
-      // 1. (もしあれば) アイコン画像を Storage にアップロード
+      //
+      // ステップ 1: アイコンが変更された場合、専用APIにアップロード
+      //
       if (avatarImage) {
-        const fileExt = avatarImage.name.split(".").pop();
-        const filePath = `${session.user.id}/${Date.now()}.${fileExt}`;
+        // 1a. ファイルを Base64 文字列に変換
+        const base64File = await fileToBase64(avatarImage);
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("avatars")
-          .upload(filePath, avatarImage, {
-            cacheControl: "3600",
-            upsert: true, // 既存のものを上書き
-          });
+        // 1b. 新しいAPI /api/profile/upload-icon (次のステップで作成) に送信
+        const uploadResponse = await fetch("/api/profile/upload-icon", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            file: base64File,
+            contentType: avatarImage.type,
+            fileExt: avatarImage.name.split(".").pop(), // "png" や "jpg" など
+          }),
+        });
 
-        if (uploadError) throw uploadError;
+        const uploadResult = await uploadResponse.json();
+        if (!uploadResponse.ok) {
+          throw new Error(
+            uploadResult.error || "アイコンのアップロードに失敗しました"
+          );
+        }
 
-        // 2. アップロードした画像の公開URLを取得
-        const { data: urlData } = supabase.storage
-          .from("avatars")
-          .getPublicUrl(uploadData.path);
-
-        newImageUrl = urlData.publicUrl;
+        newImageUrl = uploadResult.imageUrl; // APIから返された公開URLを取得
       }
 
-      // 3. APIサーバーに更新リクエストを送信
+      //
+      // ステップ 2: /api/profile APIに (名前) と (新しい画像URL) を送信
+      //
       const updatePayload = {
         name: name,
-        image_url: newImageUrl, // 新しいURLがない場合は undefined (更新しない)
+        // newImageUrl があれば (ステップ1で設定されたら) それを使い、
+        // なければ (アイコン変更なしなら) undefined を送る
+        image_url: newImageUrl,
       };
 
-      const response = await fetch("/api/profile", {
+      const profileResponse = await fetch("/api/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatePayload),
       });
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "プロフィールの更新に失敗しました");
+      const profileResult = await profileResponse.json();
+      if (!profileResponse.ok) {
+        // ここで 'public.users' エラーが出る場合は【手順1】が必要です
+        throw new Error(
+          profileResult.error || "プロフィールの更新に失敗しました"
+        );
       }
 
-      // 4. クライアントのセッションを更新 (重要！)
-      // これにより、ヘッダーのアイコン等が即時反映される
+      //
+      // ステップ 3: クライアント側のセッションを更新 (即時反映のため)
+      //
       await updateSession({
         ...session,
         user: {
           ...session.user,
           name: name,
-          image: newImageUrl || session.user.image, // 新URL > 旧URL
+          // 新しいURLがあればそれを、なければ既存のセッションの画像を使う
+          image: newImageUrl || session.user.image,
         },
       });
 
