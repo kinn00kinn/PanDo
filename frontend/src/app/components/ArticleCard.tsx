@@ -13,6 +13,7 @@ import { useLanguage } from "@/app/components/LanguageProvider";
 type ArticleCardProps = {
   article: Article;
   onOptimisticUpdate: (articleId: string, update: Partial<Article>) => void;
+  onLikeSuccess: () => void; // ★★★ この行が追加されているか確認 ★★★
   tutorialIds?: TutorialIds;
 };
 

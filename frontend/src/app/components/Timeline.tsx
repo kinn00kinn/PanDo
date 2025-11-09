@@ -69,7 +69,9 @@ export default function Timeline({
           <ArticleCard
             key={item.id}
             article={item}
-            onLikeSuccess={() => mutate()}
+            onLikeSuccess={() => {
+              mutate();
+            }}
             tutorialIds={tutorialIds} // ★ 4. ArticleCard に ID を渡す
           />
         );
