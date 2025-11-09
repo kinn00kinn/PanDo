@@ -65,9 +65,9 @@ const translations = {
 
     // --- not-found.tsx ---
     notFoundTitle: "404 - Not Found",
-    notFoundHeading: "ページがみつからないパン！",
-    notFoundBody: "お探しのページは、どこかへ迷子になってしまったようです…",
-    notFoundButton: "ホームへ戻るパン！",
+    notFoundHeading: "ページがみつからないです！",
+    notFoundBody: "お探しのパンダは、どこかへ迷子になってしまったようです…",
+    notFoundButton: "ホームへ戻る！",
   },
   en: {
     // (中略: 英語の翻訳)

@@ -4,7 +4,8 @@ frontend/src/app/not-found.tsx (修正後)
 "use client"; // ★ クライアントコンポーネントにする
 
 import Link from "next/link";
-import { ArrowLeft, SearchX } from "lucide-react";
+import { ArrowLeft } from "lucide-react"; // ★ SearchX を削除
+import Image from "next/image"; // ★ Image をインポート
 // ★ useLanguage フックをインポート
 import { useLanguage } from "@/app/components/LanguageProvider";
 
@@ -15,7 +16,7 @@ export default function NotFound() {
   return (
     <div className="flex justify-center bg-white text-black">
       <div className="w-full max-w-xl">
-        {/* ヘッダー */}
+        {/* ヘッダー (ArrowLeftは変更なし) */}
         <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm p-2 border-b-2 border-black flex items-center space-x-4">
           <Link
             href="/"
@@ -33,9 +34,20 @@ export default function NotFound() {
         {/* メインコンテンツ */}
         <main className="border-x-2 border-b-2 border-black p-6 md:p-12">
           <div className="flex flex-col items-center text-center space-y-6">
-            <div className="w-32 h-32 rounded-full border-4 border-black flex items-center justify-center bg-gray-100">
-              <SearchX size={64} className="text-black" />
+            {/* ★★★ ここを <SearchX /> から <Image /> に差し替え ★★★ */}
+            <div className=" flex items-center justify-center ">
+              {/* 元のコード:
+                <SearchX size={64} className="text-black" />
+              */}
+              <Image
+                src="/icon/question.png" // public/icon/question.png を参照
+                alt="Not Found Icon"
+                width={128} // 元の size={64} に合わせる
+                height={128}
+                unoptimized // ピクセルアートのため
+              />
             </div>
+            {/* ★★★ 差し替えここまで ★★★ */}
 
             {/* ★ 翻訳を適用 */}
             <h2 className="text-2xl md:text-3xl font-bold">
