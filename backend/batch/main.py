@@ -26,7 +26,6 @@ from utils import get_main_image
 from search_panda_images import fetch_from_google_search
 from article_collector import fetch_from_newsapi
 from rss_collector import fetch_from_rss
-from scrape_collector import fetch_from_scraping
 
 def main():
     # 1. 環境変数の読み込みとDBクライアントの初期化
