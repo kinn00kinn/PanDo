@@ -8,6 +8,8 @@ import {
   Shield, // ★ policy
   Megaphone, // ★ ads
   Mail, // ★ contact (send.png が「共有」のイメージが強いため)
+  CircleQuestionMark,
+  CircleAlert,
 } from "lucide-react";
 
 const LinksPage = () => {
@@ -17,15 +19,7 @@ const LinksPage = () => {
       href: "links/about",
       text: "PanDo (パンドゥ) について",
       description: "このサービスが目指すもの",
-      icon: (
-        <Image
-          src="/icon/exclamation.png"
-          alt="about"
-          width={24}
-          height={24}
-          unoptimized
-        />
-      ),
+      icon: <CircleAlert size={24} />,
     },
     {
       href: "links/news",
@@ -38,13 +32,7 @@ const LinksPage = () => {
       text: "よくある質問 (FAQ)",
       description: "使い方や疑問点はこちら",
       icon: (
-        <Image
-          src="/icon/question.png"
-          alt="help"
-          width={24}
-          height={24}
-          unoptimized
-        />
+        <CircleQuestionMark size={24} />
       ),
     },
     {
@@ -59,7 +47,7 @@ const LinksPage = () => {
       description: "このサービスを作った人",
       icon: (
         <Image
-          src="/icon/developer.jpeg"
+          src="/icon/developer.png"
           alt="developer"
           width={24}
           height={24}

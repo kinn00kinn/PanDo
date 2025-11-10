@@ -48,22 +48,22 @@ const CreatorPage = () => {
                 {/* --- プレースホルダーここまで --- */}
               </div>
 
-              <h2 className="text-2xl font-bold">
-                [クリエイター名 / ハンドル名]
-              </h2>
-              <p className="text-sm text-gray-500">[肩書き / @HandleName]</p>
+              <h2 className="text-2xl font-bold">haharman</h2>
+              <p className="text-sm text-gray-500">
+                [ドット絵アイコン / @_haharman]
+              </p>
             </section>
 
             {/* 自己紹介セクション */}
             <section>
               <h3 className="text-xl font-bold mb-2">ごあいさつ</h3>
               <p className="text-gray-800 leading-relaxed">
-                PanDoのロゴ、バナー、アイコン、アニメーションなどのドット絵アセットは、[クリエイター名]様によって制作されました。
+                ドット絵を担当した@_Haharmanです！
                 <br />
                 <br />
-                ここにクリエイターからの自己紹介や、PanDoの世界観に込めた思いなどを記載します。
+                最小サイズでかわいらしいパンダを表現できたのではないかと満足しています。
                 <br />
-                (例：ご覧いただきありがとうございます。パンダの可愛らしさと、ピクセルアートの温かみが伝わるように一つ一つ心を込めて作成しました。...)
+                普段はXに風景を投稿したりドット絵のイベントに出展したりしておりますので是非チェックしてみてください！
               </p>
             </section>
 
@@ -75,32 +75,12 @@ const CreatorPage = () => {
               <div className="flex justify-center gap-4 flex-wrap">
                 {/* テンプレート: X (Twitter) */}
                 <a
-                  href="https://twitter.com/[YourHandle]" // ★ 要変更
+                  href="https://x.com/_haharman" // ★ 要変更
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block text-white bg-black border-2 border-black px-4 py-2 rounded-full hover:bg-gray-800 transition-colors"
                 >
                   X (Twitter)
-                </a>
-
-                {/* テンプレート: ポートフォリオ */}
-                <a
-                  href="https://[YourPortfolio.com]" // ★ 要変更
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block text-black bg-white border-2 border-black px-4 py-2 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  ポートフォリオ
-                </a>
-
-                {/* テンプレート: その他 (例: pixiv, Instagramなど) */}
-                <a
-                  href="https://[YourOtherSite.com]" // ★ 要変更
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block text-black bg-white border-2 border-black px-4 py-2 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  [その他サイト]
                 </a>
               </div>
             </section>

@@ -36,7 +36,7 @@ const CreatorPage = () => {
               <div className="w-32 h-32 rounded-full border-4 border-black overflow-hidden bg-gray-100 mb-4 flex items-center justify-center">
                 {
                   <Image
-                    src="/icon/developer.jpeg"
+                    src="/icon/developer.png"
                     alt="Creator Avatar"
                     width={128}
                     height={128}
@@ -54,8 +54,8 @@ const CreatorPage = () => {
                 {/* --- プレースホルダーここまで --- */}
               </div>
 
-              <h2 className="text-2xl font-bold">kinnkinn[企画/開発]</h2>
-              {/* <p className="text-sm text-gray-500">[肩書き / @HandleName]</p> */}
+              <h2 className="text-2xl font-bold">kinnkinn</h2>
+              <p className="text-sm text-gray-500">[企画/開発]</p>
             </section>
 
             {/* 自己紹介セクション */}
