@@ -6,17 +6,14 @@ import useSWR, { useSWRConfig } from "swr";
 import { fetcher } from "@/app/lib/api";
 import type { Article, Comment } from "@/app/lib/mockData";
 import ArticleCard from "@/app/components/ArticleCard";
-import { Loader2, User } from "lucide-react";
+import { Loader2, User, ArrowLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
-// ★ useState をインポート
 import React, { useState } from "react";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
-// @ts-ignore (ローカル環境にのみ存在すると仮定)
 import { useLanguage } from "@/app/components/LanguageProvider";
-// ★ ApiResponse 型をインポート (グローバルキャッシュ更新のため)
 import type { ApiResponse } from "@/app/lib/hook";
-import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 // --- アバターフォールバックコンポーネント ---
 function AvatarWithFallback({
@@ -236,6 +233,8 @@ export default function ArticleDetailClient({
   initialArticle: Article;
 }) {
   const { mutate: globalMutate } = useSWRConfig();
+  const router = useRouter();
+  const { t } = useLanguage();
 
   // ★★★ 修正: 不足していた `handleLikeSuccess` 関数を定義 ★★★
   /**
@@ -288,18 +287,30 @@ export default function ArticleDetailClient({
   };
 
   return (
+    // ★ 4. 全体をフラグメント <> でラップ
     <>
-      {/* - initialArticle の代わりに liveArticle を渡す
-          - onOptimisticUpdate ハンドラを渡す
-       */}
-      <ArticleCard
-        article={liveArticle}
-        onOptimisticUpdate={handleOptimisticUpdate}
-        onLikeSuccess={handleLikeSuccess} // 存在しなかった定義を追加した
-      />
+      {/* ★ 5. page.tsx からヘッダーを移動し、Link を button に変更 */}
+      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm p-2 border-b-2 border-black">
+        <button
+          onClick={() => router.back()} // ★ router.back() を呼び出す
+          className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-full"
+        >
+          <ArrowLeft size={20} />
+          <span className="font-bold">{t("backButtonLabel")}</span>
+        </button>
+      </header>
 
-      {/* コメントリスト（SWRでクライアントで取得） */}
-      <CommentList articleId={initialArticle.id} />
+      {/* ★ 6. ArticleCard と CommentList を <main> タグでラップ */}
+      <main className="border-x-2 border-black">
+        <ArticleCard
+          article={liveArticle}
+          onOptimisticUpdate={handleOptimisticUpdate}
+          onLikeSuccess={handleLikeSuccess}
+        />
+
+        {/* コメントリスト（SWRでクライアントで取得） */}
+        <CommentList articleId={initialArticle.id} />
+      </main>
     </>
   );
 }

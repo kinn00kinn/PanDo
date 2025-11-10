@@ -10,7 +10,7 @@ export default function AdCard() {
     <div className="relative block w-full p-4 border-b-2 border-black bg-gray-50">
       {/* ★ [広告募集] ラベルを右上に配置 */}
       <span className="absolute top-2 right-2 text-xl font-bold text-gray-500">
-        <a href="links/ads">クリック👆️[広告募集中]</a>
+        <a href="links/ads">👆️[広告募集中(Ad)]</a>
       </span>
 
       {/* ★ h-24 を削除し、padding で高さを確保 (py-8) */}

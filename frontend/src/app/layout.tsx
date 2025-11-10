@@ -47,7 +47,7 @@ export default function RootLayout({
             {/* ★ 5. children を AnimatePresence でラップ */}
             <AnimatePresence
               mode="wait" // 遷移アニメーションが完了するまで待機
-              onExitComplete={() => window.scrollTo(0, 0)} // 遷移完了時にトップへスクロール
+              // onExitComplete={() => window.scrollTo(0, 0)} // 遷移完了時にトップへスクロール
             >
               {children}
             </AnimatePresence>

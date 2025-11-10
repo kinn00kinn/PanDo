@@ -50,6 +50,8 @@ const translations = {
     loginToComment: "コメントするにはログインが必要です。",
     noComments: "まだコメントはありません。",
     loadCommentsError: "コメントの読み込みに失敗しました。",
+    // ★★★ ここに追加 ★★★
+    backButtonLabel: "戻る",
 
     // --- Page Headers (my-likes, my-bookmarks, profile) ---
     myLikesTitle: "いいねした投稿",
@@ -96,6 +98,7 @@ const translations = {
     loginToComment: "You must be logged in to comment.",
     noComments: "No comments yet.",
     loadCommentsError: "Failed to load comments.",
+    backButtonLabel: "Back",
     myLikesTitle: "Liked Posts",
     myBookmarksTitle: "Bookmarks",
     profileTitle: "Edit Profile",

@@ -4,8 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/lib/auth";
 import { Article } from "@/app/lib/mockData";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link"; // ★ Link をインポート
+// import { ArrowLeft } from "lucide-react";
+// import Link from "next/link"; // ★ Link をインポート
 import { notFound } from "next/navigation"; // ★ notFound をインポート
 
 // ★ インタラクティブな部分を別コンポーネントに分離
@@ -95,22 +95,7 @@ export default async function ArticlePage({
   return (
     <div className="flex justify-center bg-white text-black">
       <div className="w-full max-w-xl">
-        {/* ヘッダー (サーバーコンポーネントなので Link を使用) */}
-        <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm p-2 border-b-2 border-black">
-          <Link
-            href="/" // ★ router.back() の代わりにホームへ
-            className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-full"
-          >
-            <ArrowLeft size={20} />
-            <span className="font-bold">戻る</span>
-          </Link>
-        </header>
-
-        {/* メインコンテンツ */}
-        <main className="border-x-2 border-black">
-          {/* ★ クライアントコンポーネントに必要な初期データを渡す */}
-          <ArticleDetailClient initialArticle={article} />
-        </main>
+        <ArticleDetailClient initialArticle={article} />
       </div>
     </div>
   );
