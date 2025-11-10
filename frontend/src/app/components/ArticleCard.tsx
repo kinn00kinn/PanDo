@@ -11,6 +11,7 @@ import Link from "next/link";
 import Image from "next/image";
 // @ts-ignore (ローカル環境にのみ存在する LanguageProvider を仮定)
 import { useLanguage } from "@/app/components/LanguageProvider";
+import { motion } from "framer-motion";
 
 type ArticleCardProps = {
   article: Article;
@@ -298,7 +299,11 @@ export default function ArticleCard({
 
   return (
     <>
-      <div className="block w-full p-4 border-b-2 border-black bg-white transition-colors duration-150 hover:bg-gray-50">
+      <motion.div
+        // ★ article.id を使ってユニークなIDを指定
+        layoutId={`article-card-${article.id}`}
+        className="block w-full p-4 border-b-2 border-black bg-white transition-colors duration-150 hover:bg-gray-50"
+      >
         <div className="flex space-x-3">
           <div className="flex-shrink-0 w-12 h-12 border-2 border-black rounded-full flex items-center justify-center bg-gray-100 overflow-hidden">
             <Image src="/favicon.ico" alt="icon" width={32} height={32} />
@@ -478,7 +483,7 @@ export default function ArticleCard({
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* --- 2. 共有モーダル --- */}
       {isModalOpen && (

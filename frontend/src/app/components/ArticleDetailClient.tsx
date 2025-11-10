@@ -16,6 +16,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useLanguage } from "@/app/components/LanguageProvider";
 // ★ ApiResponse 型をインポート (グローバルキャッシュ更新のため)
 import type { ApiResponse } from "@/app/lib/hook";
+import { motion } from "framer-motion";
 
 // --- アバターフォールバックコンポーネント ---
 function AvatarWithFallback({
