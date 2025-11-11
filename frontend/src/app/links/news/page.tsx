@@ -10,7 +10,7 @@ import { ja } from "date-fns/locale";
 import { differenceInDays } from "date-fns";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react"; // ★ Loader2 をインポート
-export const revalidate = 60;
+export const revalidate = 300;
 
 // TODO: Markdownレンダリング用のコンポーネント (別途インストール・作成が必要)
 import MarkdownRenderer from "@/app/components/MarkdownRenderer";
